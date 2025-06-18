@@ -1,3 +1,3 @@
 cd C:\Users\jaypersanchez\projects\tradesense_ai
 call venv\Scripts\activate
-python app\main.py
+python -m app.main

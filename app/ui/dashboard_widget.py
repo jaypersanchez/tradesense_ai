@@ -7,6 +7,9 @@ import pandas as pd
 import os
 
 from app.services.ai_interpreter_service import AIInterpreterService
+from app.services.news_service import NewsService
+from app.services.text_to_speech_service import TextToSpeechService
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,6 +20,9 @@ class DashboardWidget(QWidget):
 
         self.engine = create_engine(os.getenv("POSTGRES_URL"))
         self.ai = AIInterpreterService()
+        self.news_service = NewsService()
+        self.tts = TextToSpeechService()
+
         self.coins = {
             "btc_usd": "Bitcoin",
             "eth_usd": "Ethereum",
@@ -89,6 +95,22 @@ class DashboardWidget(QWidget):
             """)
 
             layout.addWidget(insight_label)
+
+            # News Section
+            news = self.news_service.get_news_for_coin(pair.split("_")[0])  # e.g., "btc"
+            news_title = QLabel(f"<b>📰 Recent News on {name}</b>")
+            layout.addWidget(news_title)
+
+            for title, url in news:
+                label = QLabel(f'<a href="{url}">• {title}</a>')
+                label.setOpenExternalLinks(True)
+                label.setStyleSheet("color: #0066cc; margin-left: 10px;")
+                layout.addWidget(label)
+
+            # Add Listen Button
+            listen_btn = QPushButton("🔊 Listen to Insight")
+            listen_btn.clicked.connect(lambda _, text=insight: self.tts.speak(text))
+            layout.addWidget(listen_btn)
 
             # Expand Button
             expand_btn = QPushButton("View Fullscreen")

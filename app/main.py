@@ -4,6 +4,9 @@ from app.services.model_service import PredictionModel
 import logging
 from dotenv import load_dotenv
 import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Ensure .env is loaded from the project root no matter where it's run from
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")

@@ -38,7 +38,10 @@ class MainWindow(QMainWindow):
 
         # Create menu after initializing views
         self._create_menu_bar()
-
+        self.adjustSize()
+        self.show()
+        self.showMaximized()
+        
     def _create_menu_bar(self):
         menubar = self.menuBar()
 
