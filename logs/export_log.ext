@@ -1,0 +1,239 @@
+INFO:TradeSenseAI:Starting TradeSense AI
+INFO:TradeSenseAI:Fetching BTC_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved BTC_USD OHLCV to database
+INFO:TradeSenseAI:Saved BTC_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for BTC_USD: 11.35
+INFO:TradeSenseAI:Saved BTC_USD fundamentals to database
+INFO:TradeSenseAI:Fetching ETH_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved ETH_USD OHLCV to database
+INFO:TradeSenseAI:Saved ETH_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for ETH_USD: 10.41
+INFO:TradeSenseAI:Saved ETH_USD fundamentals to database
+INFO:TradeSenseAI:Fetching XRP_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved XRP_USD OHLCV to database
+INFO:TradeSenseAI:Saved XRP_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for XRP_USD: 0
+INFO:TradeSenseAI:Saved XRP_USD fundamentals to database
+INFO:TradeSenseAI:Fetching SOL_USD OHLCV from CoinGecko
+WARNING:TradeSenseAI:No data received for SOL_USD
+Predicted next price for BTC_USD:
+                   timestamp          price        time      predicted
+716 2025-06-21 18:03:30.275  103232.390377  1750529010  104643.045912
+717 2025-06-21 19:03:26.041  102871.286876  1750532606  104638.368598
+718 2025-06-21 20:03:32.068  102380.026930  1750536212  104633.678276
+719 2025-06-21 21:03:36.303  102857.803999  1750539816  104628.990557
+720 2025-06-21 22:14:03.000  101856.601628  1750544043  104623.492501
+
+
+Now extracting data for fundamental analysis
+Predicted next price for ETH_USD:
+                   timestamp        price        time    predicted
+716 2025-06-21 18:03:44.483  2401.075382  1750529024  2544.216669
+717 2025-06-21 19:03:22.647  2392.494384  1750532602  2544.134670
+718 2025-06-21 20:03:32.328  2389.319264  1750536212  2544.051937
+719 2025-06-21 21:03:34.429  2404.841641  1750539814  2543.969387
+720 2025-06-21 22:14:03.000  2302.162424  1750544043  2543.872468
+
+
+Now extracting data for fundamental analysis
+Predicted next price for XRP_USD:
+                   timestamp     price        time  predicted
+716 2025-06-21 18:03:30.415  2.096900  1750529010   2.143064
+717 2025-06-21 19:03:06.449  2.085692  1750532586   2.142836
+718 2025-06-21 20:03:35.048  2.073463  1750536215   2.142604
+719 2025-06-21 21:03:35.556  2.089366  1750539815   2.142374
+720 2025-06-21 22:13:21.000  2.046438  1750544001   2.142107
+
+
+Now extracting data for fundamental analysis
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 9, in <module>
+    from core_data_extract.aggregator import run_daily_aggregation
+ModuleNotFoundError: No module named 'core_data_extract'
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 9, in <module>
+    from core_data_extract.aggregator import run_daily_aggregation
+ModuleNotFoundError: No module named 'core_data_extract'
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 9, in <module>
+    from app.core_data_extract.aggregator import run_daily_aggregation
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\core_data_extract\aggregator.py", line 6, in <module>
+    ENGINE = create_engine(os.getenv("POSTGRES_URL"))
+  File "<string>", line 2, in create_engine
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\util\deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\create.py", line 549, in create_engine
+    u = _url.make_url(url)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\url.py", line 860, in make_url
+    raise exc.ArgumentError(
+sqlalchemy.exc.ArgumentError: Expected string or URL object, got None
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 9, in <module>
+    from app.core_data_extract.aggregator import run_daily_aggregation
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\core_data_extract\aggregator.py", line 5, in <module>
+    from app.services.db_service import get_engine  # \u2705 use existing db connection helper
+ImportError: cannot import name 'get_engine' from 'app.services.db_service' (C:\Users\jaypersanchez\projects\tradesense_ai\app\services\db_service.py)
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 9, in <module>
+    from app.core_data_extract.aggregator import run_daily_aggregation
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\core_data_extract\aggregator.py", line 6, in <module>
+    db = DatabaseService()  # \u2705 instantiate
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\services\db_service.py", line 9, in __init__
+    self.engine = create_engine(os.getenv("POSTGRES_URL"))
+  File "<string>", line 2, in create_engine
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\util\deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\create.py", line 549, in create_engine
+    u = _url.make_url(url)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\url.py", line 860, in make_url
+    raise exc.ArgumentError(
+sqlalchemy.exc.ArgumentError: Expected string or URL object, got None
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 9, in <module>
+    from app.core_data_extract.aggregator import run_daily_aggregation
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\core_data_extract\aggregator.py", line 9, in <module>
+    def run_daily_aggregation(target_day: date | None = None):
+TypeError: unsupported operand type(s) for |: 'type' and 'NoneType'
+DB URL Loaded: postgresql://postgres:postgres@localhost:5432/tradesense_ai
+INFO:TradeSenseAI:Starting TradeSense AI
+INFO:TradeSenseAI:Fetching BTC_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved BTC_USD OHLCV to database
+INFO:TradeSenseAI:Saved BTC_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for BTC_USD: 11.35
+INFO:TradeSenseAI:Saved BTC_USD fundamentals to database
+INFO:TradeSenseAI:Fetching ETH_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved ETH_USD OHLCV to database
+INFO:TradeSenseAI:Saved ETH_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for ETH_USD: 10.41
+INFO:TradeSenseAI:Saved ETH_USD fundamentals to database
+INFO:TradeSenseAI:Fetching XRP_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved XRP_USD OHLCV to database
+INFO:TradeSenseAI:Saved XRP_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for XRP_USD: 0
+INFO:TradeSenseAI:Saved XRP_USD fundamentals to database
+INFO:TradeSenseAI:Fetching SOL_USD OHLCV from CoinGecko
+WARNING:TradeSenseAI:No data received for SOL_USD
+DB URL Loaded: postgresql://postgres:postgres@localhost:5432/tradesense_ai
+DB URL Loaded: postgresql://postgres:postgres@localhost:5432/tradesense_ai
+Predicted next price for BTC_USD:
+                   timestamp          price        time      predicted
+716 2025-06-21 19:03:26.041  102871.286876  1750532606  104629.550408
+717 2025-06-21 20:03:32.068  102380.026930  1750536212  104624.858616
+718 2025-06-21 21:03:36.303  102857.803999  1750539816  104620.169427
+719 2025-06-21 22:03:26.559  101588.314326  1750543406  104615.498453
+720 2025-06-21 22:57:30.000  101829.433066  1750546650  104611.277662
+
+
+Now extracting data for fundamental analysis
+Predicted next price for ETH_USD:
+                   timestamp        price        time    predicted
+716 2025-06-21 19:03:22.647  2392.494384  1750532602  2542.748858
+717 2025-06-21 20:03:32.328  2389.319264  1750536212  2542.663398
+718 2025-06-21 21:03:34.429  2404.841641  1750539814  2542.578128
+719 2025-06-21 22:03:25.293  2288.306630  1750543405  2542.493118
+720 2025-06-21 22:57:29.000  2288.949966  1750546649  2542.416323
+
+
+Now extracting data for fundamental analysis
+Predicted next price for XRP_USD:
+                   timestamp     price        time  predicted
+716 2025-06-21 19:03:06.449  2.085692  1750532586   2.142643
+717 2025-06-21 20:03:35.048  2.073463  1750536215   2.142411
+718 2025-06-21 21:03:35.556  2.089366  1750539815   2.142181
+719 2025-06-21 22:03:24.728  2.045763  1750543404   2.141952
+720 2025-06-21 22:57:28.000  2.054380  1750546648   2.141745
+
+
+Now extracting data for fundamental analysis
+No raw data for 2025-06-22
+INFO:TradeSenseAI:Starting TradeSense AI
+INFO:TradeSenseAI:Fetching BTC_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved BTC_USD OHLCV to database
+INFO:TradeSenseAI:Saved BTC_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for BTC_USD: 11.35
+INFO:TradeSenseAI:Saved BTC_USD fundamentals to database
+INFO:TradeSenseAI:Fetching ETH_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved ETH_USD OHLCV to database
+INFO:TradeSenseAI:Saved ETH_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for ETH_USD: 10.41
+INFO:TradeSenseAI:Saved ETH_USD fundamentals to database
+INFO:TradeSenseAI:Fetching XRP_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved XRP_USD OHLCV to database
+INFO:TradeSenseAI:Saved XRP_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for XRP_USD: 0
+INFO:TradeSenseAI:Saved XRP_USD fundamentals to database
+INFO:TradeSenseAI:Fetching SOL_USD OHLCV from CoinGecko
+WARNING:TradeSenseAI:No data received for SOL_USD
+C:\Users\jaypersanchez\projects\tradesense_ai\app\core_data_extract\aggregator.py:40: FutureWarning: The default fill_method='pad' in Series.pct_change is deprecated and will be removed in a future version. Either fill in any non-leading NA values prior to calling pct_change or specify 'fill_method=None' to not fill NA values.
+  "pct_change_mcap": sub["market_cap"].pct_change().mean() * 100,
+C:\Users\jaypersanchez\projects\tradesense_ai\app\core_data_extract\aggregator.py:42: FutureWarning: The default fill_method='pad' in Series.pct_change is deprecated and will be removed in a future version. Either fill in any non-leading NA values prior to calling pct_change or specify 'fill_method=None' to not fill NA values.
+  "pct_change_vol": sub["total_volume"].pct_change().mean() * 100,
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 65, in <module>
+    run_daily_aggregation()
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\core_data_extract\aggregator.py", line 59, in run_daily_aggregation
+    print(f"\u2705 Aggregated {len(daily_df)} symbols for {target_day}")
+  File "C:\Users\jaypersanchez\anaconda3\lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+DB URL Loaded: postgresql://postgres:postgres@localhost:5432/tradesense_ai
+DB URL Loaded: postgresql://postgres:postgres@localhost:5432/tradesense_ai
+Predicted next price for BTC_USD:
+                   timestamp          price        time      predicted
+716 2025-06-21 19:03:26.041  102871.286876  1750532606  104629.523166
+717 2025-06-21 20:03:32.068  102380.026930  1750536212  104624.831315
+718 2025-06-21 21:03:36.303  102857.803999  1750539816  104620.142067
+719 2025-06-21 22:03:26.559  101588.314326  1750543406  104615.471035
+720 2025-06-21 23:01:21.000  101824.541072  1750546881  104610.949632
+
+
+Now extracting data for fundamental analysis
+Predicted next price for ETH_USD:
+                   timestamp        price        time    predicted
+716 2025-06-21 19:03:22.647  2392.494384  1750532602  2542.745101
+717 2025-06-21 20:03:32.328  2389.319264  1750536212  2542.659634
+718 2025-06-21 21:03:34.429  2404.841641  1750539814  2542.574355
+719 2025-06-21 22:03:25.293  2288.306630  1750543405  2542.489337
+720 2025-06-21 23:01:32.000  2288.295500  1750546892  2542.406782
+
+
+Now extracting data for fundamental analysis
+Predicted next price for XRP_USD:
+                   timestamp     price        time  predicted
+716 2025-06-21 19:03:06.449  2.085692  1750532586   2.142651
+717 2025-06-21 20:03:35.048  2.073463  1750536215   2.142419
+718 2025-06-21 21:03:35.556  2.089366  1750539815   2.142189
+719 2025-06-21 22:03:24.728  2.045763  1750543404   2.141960
+720 2025-06-21 23:01:32.000  2.055862  1750546892   2.141738
+
+
+Now extracting data for fundamental analysis
+Running aggregation for day: None

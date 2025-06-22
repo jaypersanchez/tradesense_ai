@@ -5,6 +5,8 @@ import logging
 from dotenv import load_dotenv
 import os
 import sys
+from app.core_data_extract.fundamentals import FundamentalsFetcher
+from app.core_data_extract.aggregator import run_daily_aggregation
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -49,6 +51,15 @@ def main():
         db.save_predictions(label, prediction)
         logger.info(f"Saved {label} predictions to database")
         print(f"Predicted next price for {label}:\n", prediction.tail(5))
+        
+        # Now fetch fundamentals data
+        print(f"\n\nNow extracting data for fundamental analysis")
+        fundamentals = FundamentalsFetcher()
+        fundamentals_data = fundamentals.get_fundamentals(coin_id, label)
+        db.save_fundamentals(label, fundamentals_data)
+        logger.info(f"Saved {label} fundamentals to database")
+
 
 if __name__ == "__main__":
     main()
+    run_daily_aggregation()

@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from sqlalchemy import create_engine
+from sqlalchemy.sql import text
 import pandas as pd
 import os
 
@@ -114,7 +115,7 @@ class DashboardWidget(QWidget):
 
             # Expand Button
             expand_btn = QPushButton("View Fullscreen")
-            expand_btn.clicked.connect(lambda: self._open_detail_view(name, df, insight))
+            expand_btn.clicked.connect(lambda: self._open_detail_view(pair,name, df, insight))
             layout.addWidget(expand_btn)
             expand_btn.setStyleSheet("""
                 QPushButton {
@@ -135,7 +136,82 @@ class DashboardWidget(QWidget):
         frame.setLayout(layout)
         return frame
 
-    def _open_detail_view(self, name, df, insight):
+    def _open_detail_view(self, pair, name, df, insight):
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"{name} - Full View")
+        dialog.setMinimumSize(1000, 600)
+
+        layout = QVBoxLayout()
+
+        # Chart
+        fig = Figure(figsize=(9, 4))
+        ax = fig.add_subplot(111)
+        ax.plot(df["timestamp"], df["price"], label="Actual")
+        ax.plot(df["timestamp"], df["predicted"], label="Predicted")
+        ax.set_title(f"{name} - Price vs Prediction (Full)")
+        ax.legend()
+        canvas = FigureCanvas(fig)
+        layout.addWidget(canvas)
+
+        # Insight
+        insight_label = QLabel(insight)
+        insight_label.setWordWrap(True)
+        layout.addWidget(insight_label)
+
+        # Fundamentals
+        #symbol = f"{name.upper()}"
+        symbol = pair.upper()
+        fundamentals = self._get_latest_fundamentals(symbol)
+
+        if fundamentals:
+            fundamentals_html = "<b>📊 Fundamentals</b><br><ul>"
+            for key, value in fundamentals.items():
+                if key == "timestamp":
+                    continue
+                fundamentals_html += f"<li><b>{key.replace('_', ' ').title()}</b>: {value}</li>"
+            fundamentals_html += "</ul>"
+
+            fundamentals_label = QLabel(fundamentals_html)
+            fundamentals_label.setWordWrap(True)
+            fundamentals_label.setStyleSheet("font-size: 14px; margin-top: 10px;")
+            layout.addWidget(fundamentals_label)
+        elif isinstance(fundamentals, dict) and "error" in fundamentals:
+            layout.addWidget(QLabel(f"Error loading fundamentals: {fundamentals['error']}"))
+        else:
+            layout.addWidget(QLabel("No fundamentals data available."))
+            
+        # Aggregated Trend Chart
+        trend_df = self._get_fundamentals_trend(symbol)
+
+        if isinstance(trend_df, pd.DataFrame):
+            trend_fig = Figure(figsize=(9, 3.5))
+            trend_ax = trend_fig.add_subplot(111)
+            trend_ax.plot(trend_df["day"], trend_df["avg_market_cap"], label="Market Cap Avg", color="blue")
+            trend_ax.plot(trend_df["day"], trend_df["avg_total_volume"], label="Volume Avg", color="green")
+            trend_ax.plot(trend_df["day"], trend_df["pct_change_mcap"], label="% Change Market Cap", color="orange")
+            trend_ax.plot(trend_df["day"], trend_df["stddev_mcap"], label="Volatility (Market Cap)", color="red")
+
+            trend_ax.set_title(f"{name} - Fundamentals Trend")
+            trend_ax.legend()
+            trend_canvas = FigureCanvas(trend_fig)
+            layout.addWidget(QLabel("<b>📈 Fundamentals Trend</b>"))
+            layout.addWidget(trend_canvas)
+        elif isinstance(trend_df, dict) and "error" in trend_df:
+            layout.addWidget(QLabel(f"Trend data error: {trend_df['error']}"))
+        else:
+            layout.addWidget(QLabel("No trend data available."))
+
+
+        # Close button
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+
+    '''def _open_detail_view(self, name, df, insight):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"{name} - Full View")
         dialog.setMinimumSize(1000, 600)
@@ -160,4 +236,53 @@ class DashboardWidget(QWidget):
         layout.addWidget(buttons)
 
         dialog.setLayout(layout)
-        dialog.exec_()
+        dialog.exec_()'''
+    
+    def _get_latest_fundamentals(self, symbol):
+        try:
+            query = f"""
+                SELECT *
+                FROM fundamentals_data
+                WHERE symbol = :symbol
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """
+            # df = pd.read_sql(query, self.engine, params=[symbol])
+            df = pd.read_sql(text(query), self.engine, params={"symbol": symbol})
+            if df.empty:
+                return None
+            return df.iloc[0].to_dict()
+        except Exception as e:
+            return {"error": str(e)}
+    
+    def _get_fundamentals_trend(self, symbol):
+        try:
+            '''query = """
+                SELECT date, market_cap_avg, market_cap_pct_change, volume_avg, volume_pct_change
+                FROM fundamentals_daily
+                WHERE symbol = :symbol
+                ORDER BY date ASC
+            """ '''
+            query = """
+                SELECT 
+                    day, 
+                    avg_market_cap, 
+                    pct_change_mcap, 
+                    avg_total_volume, 
+                    pct_change_vol,
+                    stddev_mcap,
+                    stddev_volume
+                FROM fundamentals_daily
+                WHERE symbol =:symbol
+                ORDER BY day ASC
+
+            """
+            params = {"symbol": symbol}
+            df = pd.read_sql(text(query), self.engine, params={"symbol": symbol})
+            print("Trend DF Columns:", df.columns.tolist())
+            print(df.head(1))
+
+            return df if not df.empty else None
+        except Exception as e:
+            return {"error": str(e)}
+
