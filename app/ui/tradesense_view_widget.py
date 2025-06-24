@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QFrame
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QFrame, QHBoxLayout, QFormLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
 import requests
@@ -22,25 +22,31 @@ class TradeSenseViewWidget(QWidget):
         self.load_chart()  # Load initial view
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        main_layout = QHBoxLayout()
+
+        # Sidebar layout using QFormLayout for better alignment
+        form_layout = QFormLayout()
 
         self.pair_selector = QComboBox()
         self.pair_selector.addItems(self.symbol_map.keys())
         self.pair_selector.currentTextChanged.connect(self.load_chart)
-        layout.addWidget(QLabel("Select Trading Pair:"))
-        layout.addWidget(self.pair_selector)
+        form_layout.addRow("Select Trading Pair:", self.pair_selector)
 
         self.timeframe_selector = QComboBox()
         self.timeframe_selector.addItems(["daily", "weekly"])
         self.timeframe_selector.currentTextChanged.connect(self.load_chart)
-        layout.addWidget(QLabel("Select Timeframe:"))
-        layout.addWidget(self.timeframe_selector)
+        form_layout.addRow("Select Timeframe:", self.timeframe_selector)
 
+        sidebar_frame = QFrame()
+        sidebar_frame.setLayout(form_layout)
+        main_layout.addWidget(sidebar_frame, 1)
+
+        # Chart area
         self.chart_frame = QFrame()
         self.chart_layout = QVBoxLayout(self.chart_frame)
-        layout.addWidget(self.chart_frame)
+        main_layout.addWidget(self.chart_frame, 4)
 
-        self.setLayout(layout)
+        self.setLayout(main_layout)
 
     def load_chart(self):
         pair_key = self.pair_selector.currentText()
@@ -69,7 +75,7 @@ class TradeSenseViewWidget(QWidget):
             df["open"] = df["close"].shift(1)
             df["high"] = df[["open", "close"]].max(axis=1) * 1.01
             df["low"] = df[["open", "close"]].min(axis=1) * 0.99
-            df["volume"] = 0
+            df["volume"] = df["close"] * 0.03  # simple synthetic volume
 
             if timeframe == "weekly":
                 df = df.resample("W").agg({
@@ -94,7 +100,8 @@ class TradeSenseViewWidget(QWidget):
                 mpf.make_addplot(df["EMA_slow"], color='red'),
                 mpf.make_addplot(df["RSI_14"], panel=1, color='blue', ylabel='RSI'),
                 mpf.make_addplot(df[["MACDh_12_26_9"]], panel=2, type='bar', color='dimgray', ylabel='MACD Hist'),
-                mpf.make_addplot(df[["MACD_12_26_9", "MACDs_12_26_9"]], panel=2)
+                mpf.make_addplot(df[["MACD_12_26_9", "MACDs_12_26_9"]], panel=2),
+                mpf.make_addplot(df["volume"], panel=3, type='bar', color='gray', ylabel='Volume')
             ]
 
             fig, _ = mpf.plot(
@@ -102,11 +109,10 @@ class TradeSenseViewWidget(QWidget):
                 type='candle',
                 style='charles',
                 addplot=apds,
-                volume=True,
                 returnfig=True,
                 title=f"{pair_key} - {timeframe.capitalize()} Chart",
                 ylabel="Price (USD)",
-                panel_ratios=(3, 1, 1)
+                panel_ratios=(3, 1, 1, 1)
             )
 
             canvas = FigureCanvas(fig)
