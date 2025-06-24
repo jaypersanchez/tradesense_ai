@@ -144,7 +144,7 @@ class DashboardWidget(QWidget):
         layout = QVBoxLayout()
 
         # Chart
-        fig = Figure(figsize=(9, 4))
+        '''fig = Figure(figsize=(9, 4))
         ax = fig.add_subplot(111)
         ax.plot(df["timestamp"], df["price"], label="Actual")
         ax.plot(df["timestamp"], df["predicted"], label="Predicted")
@@ -156,7 +156,7 @@ class DashboardWidget(QWidget):
         # Insight
         insight_label = QLabel(insight)
         insight_label.setWordWrap(True)
-        layout.addWidget(insight_label)
+        layout.addWidget(insight_label)'''
 
         # Fundamentals
         #symbol = f"{name.upper()}"
