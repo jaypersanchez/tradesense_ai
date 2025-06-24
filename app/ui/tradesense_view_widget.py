@@ -3,12 +3,13 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
 import requests
 import mplfinance as mpf
+import pandas_ta as ta
 
 class TradeSenseViewWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("TradeSense View")
-        self.resize(1200, 800)
+        self.resize(1200, 900)
 
         self.symbol_map = {
             "BTC_USDC": "bitcoin",
@@ -81,6 +82,8 @@ class TradeSenseViewWidget(QWidget):
 
             df["EMA_fast"] = df["close"].ewm(span=9).mean()
             df["EMA_slow"] = df["close"].ewm(span=21).mean()
+            df.ta.rsi(length=14, append=True)
+            df.ta.macd(append=True)
             df.dropna(inplace=True)
 
             for i in reversed(range(self.chart_layout.count())):
@@ -88,7 +91,10 @@ class TradeSenseViewWidget(QWidget):
 
             apds = [
                 mpf.make_addplot(df["EMA_fast"], color='green'),
-                mpf.make_addplot(df["EMA_slow"], color='red')
+                mpf.make_addplot(df["EMA_slow"], color='red'),
+                mpf.make_addplot(df["RSI_14"], panel=1, color='blue', ylabel='RSI'),
+                mpf.make_addplot(df[["MACDh_12_26_9"]], panel=2, type='bar', color='dimgray', ylabel='MACD Hist'),
+                mpf.make_addplot(df[["MACD_12_26_9", "MACDs_12_26_9"]], panel=2)
             ]
 
             fig, _ = mpf.plot(
@@ -99,7 +105,8 @@ class TradeSenseViewWidget(QWidget):
                 volume=True,
                 returnfig=True,
                 title=f"{pair_key} - {timeframe.capitalize()} Chart",
-                ylabel="Price (USD)"
+                ylabel="Price (USD)",
+                panel_ratios=(3, 1, 1)
             )
 
             canvas = FigureCanvas(fig)
