@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QFrame, QHBoxLayout, QFormLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QFrame, QHBoxLayout, QFormLayout, QPushButton, QTextEdit
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import pandas as pd
 import requests
@@ -37,6 +37,14 @@ class TradeSenseViewWidget(QWidget):
         self.timeframe_selector.currentTextChanged.connect(self.load_chart)
         form_layout.addRow("Select Timeframe:", self.timeframe_selector)
 
+        self.insight_btn = QPushButton("Insight and Advise")
+        self.insight_btn.clicked.connect(self.provide_insight)
+        form_layout.addRow(self.insight_btn)
+
+        self.insight_text = QTextEdit()
+        self.insight_text.setReadOnly(True)
+        form_layout.addRow(self.insight_text)
+
         sidebar_frame = QFrame()
         sidebar_frame.setLayout(form_layout)
         main_layout.addWidget(sidebar_frame, 1)
@@ -51,6 +59,8 @@ class TradeSenseViewWidget(QWidget):
     def load_chart(self):
         pair_key = self.pair_selector.currentText()
         timeframe = self.timeframe_selector.currentText()
+        self.current_pair = pair_key
+        self.current_timeframe = timeframe
         coingecko_id = self.symbol_map.get(pair_key)
 
         if not coingecko_id:
@@ -92,6 +102,8 @@ class TradeSenseViewWidget(QWidget):
             df.ta.macd(append=True)
             df.dropna(inplace=True)
 
+            self.df = df  # save for insight use
+
             for i in reversed(range(self.chart_layout.count())):
                 self.chart_layout.itemAt(i).widget().setParent(None)
 
@@ -120,3 +132,10 @@ class TradeSenseViewWidget(QWidget):
 
         except Exception as e:
             self.chart_layout.addWidget(QLabel(f"Error loading chart: {str(e)}"))
+
+    def provide_insight(self):
+        if not hasattr(self, "df") or self.df.empty:
+            self.insight_text.setPlainText("No chart data available for analysis.")
+            return
+
+        last = self.df.iloc[-1]
