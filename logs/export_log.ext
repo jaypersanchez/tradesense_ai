@@ -237,3 +237,109 @@ Predicted next price for XRP_USD:
 
 Now extracting data for fundamental analysis
 Running aggregation for day: None
+INFO:TradeSenseAI:Starting TradeSense AI
+INFO:TradeSenseAI:Fetching BTC_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved BTC_USD OHLCV to database
+INFO:TradeSenseAI:Saved BTC_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for BTC_USD: 11.35
+INFO:TradeSenseAI:Saved BTC_USD fundamentals to database
+INFO:TradeSenseAI:Fetching ETH_USD OHLCV from CoinGecko
+INFO:TradeSenseAI:Saved ETH_USD OHLCV to database
+INFO:TradeSenseAI:Saved ETH_USD predictions to database
+INFO:TradeSenseAI:Fundamentals score for ETH_USD: 10.41
+INFO:TradeSenseAI:Saved ETH_USD fundamentals to database
+INFO:TradeSenseAI:Fetching XRP_USD OHLCV from CoinGecko
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.DependentObjectsStillExist: cannot drop table xrp_usd_ohlcv because other objects depend on it
+DETAIL:  materialized view xrp_usd_ohlcv_daily depends on table xrp_usd_ohlcv
+materialized view xrp_usd_ohlcv_weekly depends on table xrp_usd_ohlcv
+HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 64, in <module>
+    main()
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 47, in main
+    db.save_ohlcv(label, df)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\services\db_service.py", line 22, in save_ohlcv
+    df.to_sql(f"{pair.lower()}_ohlcv", self.engine, if_exists="replace", index=False)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\pandas\core\generic.py", line 3106, in to_sql
+    return sql.to_sql(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\pandas\io\sql.py", line 844, in to_sql
+    return pandas_sql.to_sql(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\pandas\io\sql.py", line 2020, in to_sql
+    table = self.prep_table(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\pandas\io\sql.py", line 1924, in prep_table
+    table.create()
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\pandas\io\sql.py", line 990, in create
+    self.pd_sql.drop_table(self.name, self.schema)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\pandas\io\sql.py", line 2075, in drop_table
+    self.get_table(table_name, schema).drop(bind=self.con)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\sql\schema.py", line 1300, in drop
+    bind._run_ddl_visitor(ddl.SchemaDropper, self, checkfirst=checkfirst)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    visitorcallable(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\sql\visitors.py", line 664, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\sql\ddl.py", line 1207, in visit_table
+    DropTable(table)._invoke_with(self.connection)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\sql\ddl.py", line 321, in _invoke_with
+    return bind.execute(self)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1415, in execute
+    return meth(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\sql\ddl.py", line 187, in _execute_on_connection
+    return connection._execute_ddl(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1526, in _execute_ddl
+    ret = self._execute_context(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1982, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 2351, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\venv\lib\site-packages\sqlalchemy\engine\default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.InternalError: (psycopg2.errors.DependentObjectsStillExist) cannot drop table xrp_usd_ohlcv because other objects depend on it
+DETAIL:  materialized view xrp_usd_ohlcv_daily depends on table xrp_usd_ohlcv
+materialized view xrp_usd_ohlcv_weekly depends on table xrp_usd_ohlcv
+HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+
+[SQL: 
+DROP TABLE xrp_usd_ohlcv]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+DB URL Loaded: postgresql://postgres:postgres@localhost:5432/tradesense_ai
+DB URL Loaded: postgresql://postgres:postgres@localhost:5432/tradesense_ai
+Predicted next price for BTC_USD:
+                   timestamp          price        time      predicted
+716 2025-06-24 18:03:39.136  106083.501276  1750788219  103982.185104
+717 2025-06-24 19:03:26.427  105673.120285  1750791806  103977.325817
+718 2025-06-24 20:03:42.732  105477.732964  1750795422  103972.427245
+719 2025-06-24 21:03:52.584  106091.857056  1750799032  103967.536800
+720 2025-06-24 22:22:06.000  105907.908617  1750803726  103961.177867
+
+
+Now extracting data for fundamental analysis
+Predicted next price for ETH_USD:
+                   timestamp        price        time    predicted
+716 2025-06-24 19:03:26.668  2440.817870  1750791806  2446.538513
+717 2025-06-24 20:03:43.422  2429.189526  1750795423  2446.251905
+718 2025-06-24 21:03:22.198  2448.463515  1750799002  2445.968307
+719 2025-06-24 22:01:33.844  2444.104088  1750802493  2445.691682
+720 2025-06-24 22:22:44.000  2439.260955  1750803764  2445.590969
+
+
+Now extracting data for fundamental analysis

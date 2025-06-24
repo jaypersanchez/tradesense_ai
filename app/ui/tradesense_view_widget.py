@@ -1,0 +1,109 @@
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QFrame
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import pandas as pd
+import requests
+import mplfinance as mpf
+
+class TradeSenseViewWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("TradeSense View")
+        self.resize(1200, 800)
+
+        self.symbol_map = {
+            "BTC_USDC": "bitcoin",
+            "ETH_USDC": "ethereum",
+            "XRP_USDC": "ripple",
+            "SOL_USDC": "solana"
+        }
+
+        self.init_ui()
+        self.load_chart()  # Load initial view
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+
+        self.pair_selector = QComboBox()
+        self.pair_selector.addItems(self.symbol_map.keys())
+        self.pair_selector.currentTextChanged.connect(self.load_chart)
+        layout.addWidget(QLabel("Select Trading Pair:"))
+        layout.addWidget(self.pair_selector)
+
+        self.timeframe_selector = QComboBox()
+        self.timeframe_selector.addItems(["daily", "weekly"])
+        self.timeframe_selector.currentTextChanged.connect(self.load_chart)
+        layout.addWidget(QLabel("Select Timeframe:"))
+        layout.addWidget(self.timeframe_selector)
+
+        self.chart_frame = QFrame()
+        self.chart_layout = QVBoxLayout(self.chart_frame)
+        layout.addWidget(self.chart_frame)
+
+        self.setLayout(layout)
+
+    def load_chart(self):
+        pair_key = self.pair_selector.currentText()
+        timeframe = self.timeframe_selector.currentText()
+        coingecko_id = self.symbol_map.get(pair_key)
+
+        if not coingecko_id:
+            return
+
+        url = f"https://api.coingecko.com/api/v3/coins/{coingecko_id}/market_chart"
+        params = {
+            "vs_currency": "usd",
+            "days": "365" if timeframe == "weekly" else "90",
+            "interval": "daily"
+        }
+
+        try:
+            response = requests.get(url, params=params)
+            data = response.json()
+            prices = data.get("prices", [])
+
+            df = pd.DataFrame(prices, columns=["timestamp", "close"])
+            df["Date"] = pd.to_datetime(df["timestamp"], unit="ms")
+            df.set_index("Date", inplace=True)
+
+            df["open"] = df["close"].shift(1)
+            df["high"] = df[["open", "close"]].max(axis=1) * 1.01
+            df["low"] = df[["open", "close"]].min(axis=1) * 0.99
+            df["volume"] = 0
+
+            if timeframe == "weekly":
+                df = df.resample("W").agg({
+                    "open": "first",
+                    "high": "max",
+                    "low": "min",
+                    "close": "last",
+                    "volume": "sum"
+                }).dropna()
+
+            df["EMA_fast"] = df["close"].ewm(span=9).mean()
+            df["EMA_slow"] = df["close"].ewm(span=21).mean()
+            df.dropna(inplace=True)
+
+            for i in reversed(range(self.chart_layout.count())):
+                self.chart_layout.itemAt(i).widget().setParent(None)
+
+            apds = [
+                mpf.make_addplot(df["EMA_fast"], color='green'),
+                mpf.make_addplot(df["EMA_slow"], color='red')
+            ]
+
+            fig, _ = mpf.plot(
+                df,
+                type='candle',
+                style='charles',
+                addplot=apds,
+                volume=True,
+                returnfig=True,
+                title=f"{pair_key} - {timeframe.capitalize()} Chart",
+                ylabel="Price (USD)"
+            )
+
+            canvas = FigureCanvas(fig)
+            self.chart_layout.addWidget(canvas)
+
+        except Exception as e:
+            self.chart_layout.addWidget(QLabel(f"Error loading chart: {str(e)}"))
