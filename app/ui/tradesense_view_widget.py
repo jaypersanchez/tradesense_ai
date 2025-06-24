@@ -4,6 +4,8 @@ import pandas as pd
 import requests
 import mplfinance as mpf
 import pandas_ta as ta
+import os
+import json
 
 class TradeSenseViewWidget(QWidget):
     def __init__(self):
@@ -138,4 +140,48 @@ class TradeSenseViewWidget(QWidget):
             self.insight_text.setPlainText("No chart data available for analysis.")
             return
 
-        last = self.df.iloc[-1]
+        df = self.df
+        pair = self.current_pair
+        tf = self.current_timeframe
+        last = df.iloc[-1]
+
+        prompt = f"""
+        Act as a technical swing trader. Given the following:
+        Pair: {pair}
+        Timeframe: {tf}
+        Current Price: {last['close']:.2f}
+        EMA 9: {last['EMA_fast']:.2f}, EMA 21: {last['EMA_slow']:.2f}
+        RSI: {last['RSI_14']:.2f}
+        MACD Histogram: {last['MACDh_12_26_9']:.2f}
+        MACD: {last['MACD_12_26_9']:.2f}, Signal: {last['MACDs_12_26_9']:.2f}
+        Volume: {last['volume']:.2f}
+
+        Provide:
+        - A short paragraph assessment of current price action
+        - Key resistance and support levels (based on recent price highs/lows)
+        - A suggested long and short entry with stop-loss and take-profit targets
+        - ROI estimate for a $100 position in both scenarios
+        - Tone: professional, concise, trader-grade
+        """
+
+        try:
+            headers = {
+                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                "Content-Type": "application/json"
+            }
+
+            body = {
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    {"role": "user", "content": prompt.strip()}
+                ],
+                "max_tokens": 500
+            }
+
+            res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, data=json.dumps(body))
+            res.raise_for_status()
+            result = res.json()["choices"][0]["message"]["content"]
+            self.insight_text.setPlainText(result.strip())
+
+        except Exception as e:
+            self.insight_text.setPlainText(f"Error calling OpenAI API: {str(e)}")
