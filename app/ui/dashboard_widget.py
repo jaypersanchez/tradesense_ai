@@ -10,6 +10,7 @@ import os
 from app.services.ai_interpreter_service import AIInterpreterService
 from app.services.news_service import NewsService
 from app.services.text_to_speech_service import TextToSpeechService
+from app.ui.tradesense_view_widget import TradeSenseViewWidget
 
 from dotenv import load_dotenv
 
@@ -135,28 +136,13 @@ class DashboardWidget(QWidget):
 
         frame.setLayout(layout)
         return frame
-
+    
     def _open_detail_view(self, pair, name, df, insight):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"{name} - Full View")
         dialog.setMinimumSize(1000, 600)
 
         layout = QVBoxLayout()
-
-        # Chart
-        '''fig = Figure(figsize=(9, 4))
-        ax = fig.add_subplot(111)
-        ax.plot(df["timestamp"], df["price"], label="Actual")
-        ax.plot(df["timestamp"], df["predicted"], label="Predicted")
-        ax.set_title(f"{name} - Price vs Prediction (Full)")
-        ax.legend()
-        canvas = FigureCanvas(fig)
-        layout.addWidget(canvas)
-
-        # Insight
-        insight_label = QLabel(insight)
-        insight_label.setWordWrap(True)
-        layout.addWidget(insight_label)'''
 
         # Fundamentals
         #symbol = f"{name.upper()}"
@@ -202,41 +188,30 @@ class DashboardWidget(QWidget):
             layout.addWidget(QLabel("No trend data available."))
 
 
-        # Close button
-        buttons = QDialogButtonBox(QDialogButtonBox.Close)
-        buttons.rejected.connect(dialog.reject)
+        # --- Button row with TradeSense ---
+        buttons = QDialogButtonBox()
+        btn_tradesense = QPushButton("📈 Open TradeSense")
+        btn_tradesense.clicked.connect(self._open_tradesense_view)
+
+        btn_close = QPushButton("Close")
+        btn_close.clicked.connect(dialog.reject)
+
+        buttons.addButton(btn_tradesense, QDialogButtonBox.ActionRole)
+        buttons.addButton(btn_close, QDialogButtonBox.RejectRole)
         layout.addWidget(buttons)
 
         dialog.setLayout(layout)
         dialog.exec_()
 
-
-    '''def _open_detail_view(self, name, df, insight):
-        dialog = QDialog(self)
-        dialog.setWindowTitle(f"{name} - Full View")
-        dialog.setMinimumSize(1000, 600)
-
+    def _open_tradesense_view(self):
+        ts_dialog = QDialog(self)
+        ts_dialog.setWindowTitle("TradeSense View")
+        ts_dialog.setMinimumSize(1200, 800)
         layout = QVBoxLayout()
+        layout.addWidget(TradeSenseViewWidget())
+        ts_dialog.setLayout(layout)
+        ts_dialog.exec_()
 
-        fig = Figure(figsize=(9, 4))
-        ax = fig.add_subplot(111)
-        ax.plot(df["timestamp"], df["price"], label="Actual")
-        ax.plot(df["timestamp"], df["predicted"], label="Predicted")
-        ax.set_title(f"{name} - Price vs Prediction (Full)")
-        ax.legend()
-        canvas = FigureCanvas(fig)
-        layout.addWidget(canvas)
-
-        insight_label = QLabel(insight)
-        insight_label.setWordWrap(True)
-        layout.addWidget(insight_label)
-
-        buttons = QDialogButtonBox(QDialogButtonBox.Close)
-        buttons.rejected.connect(dialog.reject)
-        layout.addWidget(buttons)
-
-        dialog.setLayout(layout)
-        dialog.exec_()'''
     
     def _get_latest_fundamentals(self, symbol):
         try:
