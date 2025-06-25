@@ -5,6 +5,12 @@ load_dotenv()
 import os
 import pandas as pd
 from sqlalchemy import create_engine
+from sqlalchemy.sql import text  
+
+def get_supported_symbols(self):
+    q = text("SELECT symbol, coingecko_id, symbol_type FROM supported_symbols WHERE active = true")
+    return pd.read_sql(q, self.engine)
+
 from datetime import datetime
 
 class DatabaseService:
@@ -35,3 +41,8 @@ class DatabaseService:
 
         # Append to fundamentals_data table
         df.to_sql("fundamentals_data", self.engine, if_exists="append", index=False)
+        
+    def get_supported_symbols(self):
+        q = text("SELECT symbol, coingecko_id, symbol_type FROM supported_symbols WHERE active = true")
+        return pd.read_sql(q, self.engine)
+

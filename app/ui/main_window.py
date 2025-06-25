@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QMenuBar, QAction, QStackedWidget
 from PyQt5.QtCore import Qt
 from app.ui.dashboard_widget import DashboardWidget
+from app.ui.tradesense_view_widget import TradeSenseViewWidget
 # from app.ui.wallet_tracker_widget import WalletTrackerWidget
 # from app.ui.ai_assistant_widget import AIAssistantWidget
 # from app.ui.trade_planner_widget import TradePlannerWidget
@@ -17,6 +18,8 @@ class MainWindow(QMainWindow):
 
         # Initialize views
         self.dashboard = DashboardWidget()
+        self.tradesense_view = TradeSenseViewWidget()
+
         # self.wallet_tracker = WalletTrackerWidget()
         # self.ai_assistant = AIAssistantWidget()
         # self.trade_planner = TradePlannerWidget()
@@ -24,10 +27,13 @@ class MainWindow(QMainWindow):
         # Dictionary of views
         self.views = {
             "Dashboard": self.dashboard,
+            "TradeSense View": self.tradesense_view,
             # "Wallet Tracker": self.wallet_tracker,
             # "AI Assistant": self.ai_assistant,
             # "Trade Planner": self.trade_planner,
         }
+
+
 
         # Add views to stack
         for view in self.views.values():
