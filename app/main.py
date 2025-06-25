@@ -2,6 +2,9 @@ from app.services.coingecko_service import CoinGeckoService
 from app.services.db_service import DatabaseService
 from app.services.model_service import PredictionModel
 import logging
+from sqlalchemy import create_engine, text
+
+engine = create_engine(os.getenv("POSTGRES_URL"))
 from dotenv import load_dotenv
 import os
 import sys
@@ -29,12 +32,13 @@ def main():
     db = DatabaseService()
     predictor = PredictionModel()
 
-    coins = {
+    coins = fetch_active_coins() 
+    '''{
         "BTC_USD": ("bitcoin", "usd"),
         "ETH_USD": ("ethereum", "usd"),
         "XRP_USD": ("ripple", "usd"),
         "SOL_USD": ("solana", "usd"),
-    }
+    }'''
 
     for label, (coin_id, currency) in coins.items():
         logger.info(f"Fetching {label} OHLCV from CoinGecko")
@@ -59,7 +63,18 @@ def main():
         db.save_fundamentals(label, fundamentals_data)
         logger.info(f"Saved {label} fundamentals to database")
 
-
+def fetch_active_coins():
+    query = """
+        SELECT symbol, coingecko_id, quote
+        FROM supported_symbols
+        WHERE active = true AND symbol_type = 'spot'
+    """
+    df = pd.read_sql(text(query), engine)
+    return {
+        row["symbol"]: (row["coingecko_id"], row["quote"].lower())
+        for _, row in df.iterrows()
+    }
+    
 if __name__ == "__main__":
     main()
     run_daily_aggregation()

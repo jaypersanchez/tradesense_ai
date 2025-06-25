@@ -25,12 +25,13 @@ class DashboardWidget(QWidget):
         self.news_service = NewsService()
         self.tts = TextToSpeechService()
 
-        self.coins = {
-            "btc_usd": "Bitcoin",
-            "eth_usd": "Ethereum",
-            "xrp_usd": "Ripple",
-            "sol_usd": "Solana"
-        }
+        self.coins = self.coins = self._load_supported_symbols()
+        '''{
+                    "btc_usd": "Bitcoin",
+                    "eth_usd": "Ethereum",
+                    "xrp_usd": "Ripple",
+                    "sol_usd": "Solana"
+                }'''
 
         self.init_ui()
 
@@ -73,7 +74,10 @@ class DashboardWidget(QWidget):
         layout = QVBoxLayout()
 
         try:
-            df = pd.read_sql(f"{pair}_predictions", self.engine)
+            #df = pd.read_sql(f"{pair}_predictions", self.engine)
+            query = f'SELECT * FROM "{pair}_predictions"'
+            df = pd.read_sql(text(query), self.engine)
+
             df["timestamp"] = pd.to_datetime(df["timestamp"])
 
             fig = Figure(figsize=(5, 2.5))
@@ -260,4 +264,26 @@ class DashboardWidget(QWidget):
             return df if not df.empty else None
         except Exception as e:
             return {"error": str(e)}
+
+    def _load_supported_symbols(self):
+        try:
+            query = """
+                SELECT symbol, coingecko_id
+                FROM supported_symbols
+                WHERE active = true AND symbol_type = 'spot'
+            """
+            df = pd.read_sql(text(query), self.engine)
+
+            # Only include entries with matching *_predictions tables
+            valid_symbols = {"btc_usd", "eth_usd", "xrp_usd", "sol_usd"}
+            return {
+                row["symbol"].lower(): row["coingecko_id"].capitalize()
+                for _, row in df.iterrows()
+                if row["symbol"].lower() in valid_symbols
+            }
+        except Exception as e:
+            print(f"Error loading supported symbols: {e}")
+            return {}
+
+
 
