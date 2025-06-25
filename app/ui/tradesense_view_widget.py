@@ -6,19 +6,26 @@ import mplfinance as mpf
 import pandas_ta as ta
 import os
 import json
+from sqlalchemy import create_engine, text
+from dotenv import load_dotenv
+
 
 class TradeSenseViewWidget(QWidget):
     def __init__(self):
         super().__init__()
+        load_dotenv()
+        self.engine = create_engine(os.getenv("POSTGRES_URL"))
+
         self.setWindowTitle("TradeSense View")
         self.resize(1200, 900)
 
-        self.symbol_map = {
-            "BTC_USDC": "bitcoin",
-            "ETH_USDC": "ethereum",
-            "XRP_USDC": "ripple",
-            "SOL_USDC": "solana"
-        }
+        self.symbol_map = self.symbol_map = self._load_supported_symbols()
+        '''{
+                    "BTC_USDC": "bitcoin",
+                    "ETH_USDC": "ethereum",
+                    "XRP_USDC": "ripple",
+                    "SOL_USDC": "solana"
+                }'''
 
         self.init_ui()
         self.load_chart()  # Load initial view
@@ -28,8 +35,9 @@ class TradeSenseViewWidget(QWidget):
 
         # Sidebar layout using QFormLayout for better alignment
         form_layout = QFormLayout()
-
+        
         self.pair_selector = QComboBox()
+        #self.pair_selector.addItems(self.symbol_map.keys())
         self.pair_selector.addItems(self.symbol_map.keys())
         self.pair_selector.currentTextChanged.connect(self.load_chart)
         form_layout.addRow("Select Trading Pair:", self.pair_selector)
@@ -185,3 +193,16 @@ class TradeSenseViewWidget(QWidget):
 
         except Exception as e:
             self.insight_text.setPlainText(f"Error calling OpenAI API: {str(e)}")
+
+    def _load_supported_symbols(self):
+        try:
+            query = """
+                SELECT symbol, coingecko_id
+                FROM supported_symbols
+                WHERE active = true AND symbol_type = 'spot'
+            """
+            df = pd.read_sql(text(query), self.engine)
+            return dict(zip(df["symbol"], df["coingecko_id"]))
+        except Exception as e:
+            print(f"Error loading supported symbols: {e}")
+            return {}
