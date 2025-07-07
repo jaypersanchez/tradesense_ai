@@ -13,7 +13,6 @@ from app.services.text_to_speech_service import TextToSpeechService
 from app.ui.tradesense_view_widget import TradeSenseViewWidget
 
 from dotenv import load_dotenv
-
 load_dotenv()
 
 class DashboardWidget(QWidget):
@@ -24,39 +23,30 @@ class DashboardWidget(QWidget):
         self.ai = AIInterpreterService()
         self.news_service = NewsService()
         self.tts = TextToSpeechService()
-
-        self.coins = self.coins = self._load_supported_symbols()
-        '''{
-                    "btc_usd": "Bitcoin",
-                    "eth_usd": "Ethereum",
-                    "xrp_usd": "Ripple",
-                    "sol_usd": "Solana"
-                }'''
+        self.coins = self._load_supported_symbols()
 
         self.init_ui()
 
     def init_ui(self):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-
         container = QWidget()
         layout = QVBoxLayout(container)
 
-        title = QLabel("Crypto Dashboard: BTC, ETH, XRP, SOL")
+        title = QLabel("Crypto Dashboard")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
-        for pair, name in self.coins.items():
-            card = self._create_coin_card(pair, name)
+        for symbol, coin_name in self.coins.items():
+            card = self._create_coin_card(symbol, coin_name)
             layout.addWidget(card)
 
         scroll.setWidget(container)
-
         main_layout = QVBoxLayout()
         main_layout.addWidget(scroll)
         self.setLayout(main_layout)
 
-    def _create_coin_card(self, pair, name):
+    def _create_coin_card(self, symbol, name):
         frame = QFrame()
         frame.setStyleSheet("""
             QFrame {
@@ -70,14 +60,11 @@ class DashboardWidget(QWidget):
                 );
             }
         """)
-
         layout = QVBoxLayout()
 
         try:
-            #df = pd.read_sql(f"{pair}_predictions", self.engine)
-            query = f'SELECT * FROM "{pair}_predictions"'
+            query = f'SELECT * FROM "{symbol}_predictions"'
             df = pd.read_sql(text(query), self.engine)
-
             df["timestamp"] = pd.to_datetime(df["timestamp"])
 
             fig = Figure(figsize=(5, 2.5))
@@ -99,11 +86,9 @@ class DashboardWidget(QWidget):
                 margin-top: 10px;
                 margin-bottom: 20px;
             """)
-
             layout.addWidget(insight_label)
 
-            # News Section
-            news = self.news_service.get_news_for_coin(pair.split("_")[0])  # e.g., "btc"
+            news = self.news_service.get_news_for_coin(symbol.split("_")[0])
             news_title = QLabel(f"<b>📰 Recent News on {name}</b>")
             layout.addWidget(news_title)
 
@@ -113,14 +98,12 @@ class DashboardWidget(QWidget):
                 label.setStyleSheet("color: #0066cc; margin-left: 10px;")
                 layout.addWidget(label)
 
-            # Add Listen Button
             listen_btn = QPushButton("🔊 Listen to Insight")
             listen_btn.clicked.connect(lambda _, text=insight: self.tts.speak(text))
             layout.addWidget(listen_btn)
 
-            # Expand Button
             expand_btn = QPushButton("View Fullscreen")
-            expand_btn.clicked.connect(lambda: self._open_detail_view(pair,name, df, insight))
+            expand_btn.clicked.connect(lambda: self._open_detail_view(symbol, name, df, insight))
             layout.addWidget(expand_btn)
             expand_btn.setStyleSheet("""
                 QPushButton {
@@ -140,18 +123,15 @@ class DashboardWidget(QWidget):
 
         frame.setLayout(layout)
         return frame
-    
-    def _open_detail_view(self, pair, name, df, insight):
+
+    def _open_detail_view(self, symbol, name, df, insight):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"{name} - Full View")
         dialog.setMinimumSize(1000, 600)
 
         layout = QVBoxLayout()
 
-        # Fundamentals
-        #symbol = f"{name.upper()}"
-        symbol = pair.upper()
-        fundamentals = self._get_latest_fundamentals(symbol)
+        fundamentals = self._get_latest_fundamentals(symbol.upper())
 
         if fundamentals:
             fundamentals_html = "<b>📊 Fundamentals</b><br><ul>"
@@ -169,11 +149,16 @@ class DashboardWidget(QWidget):
             layout.addWidget(QLabel(f"Error loading fundamentals: {fundamentals['error']}"))
         else:
             layout.addWidget(QLabel("No fundamentals data available."))
-            
-        # Aggregated Trend Chart
-        trend_df = self._get_fundamentals_trend(symbol)
 
+        trend_df = self._get_fundamentals_trend(symbol.upper())
+        
         if isinstance(trend_df, pd.DataFrame):
+            
+            # ✅ Convert numeric fields to float
+            for col in ["avg_market_cap", "avg_total_volume", "pct_change_mcap", "stddev_mcap"]:
+                trend_df[col] = pd.to_numeric(trend_df[col], errors="coerce")
+            trend_df.dropna(inplace=True)
+            
             trend_fig = Figure(figsize=(9, 3.5))
             trend_ax = trend_fig.add_subplot(111)
             trend_ax.plot(trend_df["day"], trend_df["avg_market_cap"], label="Market Cap Avg", color="blue")
@@ -191,12 +176,10 @@ class DashboardWidget(QWidget):
         else:
             layout.addWidget(QLabel("No trend data available."))
 
-
-        # --- Button row with TradeSense ---
+        # --- Buttons ---
         buttons = QDialogButtonBox()
         btn_tradesense = QPushButton("📈 Open TradeSense")
         btn_tradesense.clicked.connect(self._open_tradesense_view)
-
         btn_close = QPushButton("Close")
         btn_close.clicked.connect(dialog.reject)
 
@@ -216,51 +199,32 @@ class DashboardWidget(QWidget):
         ts_dialog.setLayout(layout)
         ts_dialog.exec_()
 
-    
     def _get_latest_fundamentals(self, symbol):
         try:
-            query = f"""
+            query = """
                 SELECT *
                 FROM fundamentals_data
                 WHERE symbol = :symbol
                 ORDER BY timestamp DESC
                 LIMIT 1
             """
-            # df = pd.read_sql(query, self.engine, params=[symbol])
             df = pd.read_sql(text(query), self.engine, params={"symbol": symbol})
-            if df.empty:
-                return None
-            return df.iloc[0].to_dict()
+            return df.iloc[0].to_dict() if not df.empty else None
         except Exception as e:
             return {"error": str(e)}
-    
+
     def _get_fundamentals_trend(self, symbol):
         try:
-            '''query = """
-                SELECT date, market_cap_avg, market_cap_pct_change, volume_avg, volume_pct_change
-                FROM fundamentals_daily
-                WHERE symbol = :symbol
-                ORDER BY date ASC
-            """ '''
             query = """
                 SELECT 
-                    day, 
-                    avg_market_cap, 
-                    pct_change_mcap, 
-                    avg_total_volume, 
-                    pct_change_vol,
-                    stddev_mcap,
-                    stddev_volume
+                    day, avg_market_cap, pct_change_mcap,
+                    avg_total_volume, pct_change_vol,
+                    stddev_mcap, stddev_volume
                 FROM fundamentals_daily
-                WHERE symbol =:symbol
+                WHERE symbol = :symbol
                 ORDER BY day ASC
-
             """
-            params = {"symbol": symbol}
             df = pd.read_sql(text(query), self.engine, params={"symbol": symbol})
-            print("Trend DF Columns:", df.columns.tolist())
-            print(df.head(1))
-
             return df if not df.empty else None
         except Exception as e:
             return {"error": str(e)}
@@ -274,16 +238,12 @@ class DashboardWidget(QWidget):
             """
             df = pd.read_sql(text(query), self.engine)
 
-            # Only include entries with matching *_predictions tables
-            valid_symbols = {"btc_usd", "eth_usd", "xrp_usd", "sol_usd"}
+            existing_tables = {"btc_usd", "eth_usd", "xrp_usd", "sol_usd"}  # Tables you know exist
             return {
                 row["symbol"].lower(): row["coingecko_id"].capitalize()
                 for _, row in df.iterrows()
-                if row["symbol"].lower() in valid_symbols
+                if row["symbol"].lower() in existing_tables
             }
         except Exception as e:
             print(f"Error loading supported symbols: {e}")
             return {}
-
-
-

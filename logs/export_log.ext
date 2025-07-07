@@ -343,3 +343,11 @@ Predicted next price for ETH_USD:
 
 
 Now extracting data for fundamental analysis
+Traceback (most recent call last):
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\jaypersanchez\anaconda3\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\jaypersanchez\projects\tradesense_ai\app\main.py", line 7, in <module>
+    engine = create_engine(os.getenv("POSTGRES_URL"))
+NameError: name 'os' is not defined
